@@ -1,0 +1,57 @@
+// Prisma schema for auth-service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+model User {
+  id            String         @id @default(uuid())
+  fullName      String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(STUDENT)
+  age           Int?
+  phone         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  lastUserAgent String?
+  refreshTokens RefreshToken[]
+  loginAudits   LoginAudit[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LoginAudit {
+  id        String   @id @default(uuid())
+  userId    String?
+  email     String?
+  success   Boolean
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  reason    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

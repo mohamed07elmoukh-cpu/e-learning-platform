@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LessonType {
+  VIDEO
+  PDF
+  TEXT
+  LINK
+  QUIZ
+}
+
+model Course {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  level        String?
+  thumbnailUrl String?
+  isPublished  Boolean  @default(false)
+  createdBy    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  modules      Module[]
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  orderIndex  Int
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@index([courseId])
+  @@unique([courseId, orderIndex])
+}
+
+model Lesson {
+  id          String     @id @default(uuid())
+  moduleId    String
+  title       String
+  type        LessonType
+  contentUrl  String?
+  contentText String?
+  durationMin Int?
+  orderIndex  Int
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@unique([moduleId, orderIndex])
+}
