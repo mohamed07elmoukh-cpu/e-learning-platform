@@ -3,7 +3,7 @@ import { AuthRefreshResponse } from "./types";
 import { tokenStorage } from "../auth/tokenStorage";
 
 const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_BASE_URL ?? "http://localhost:8080";
+  (import.meta as any).env?.VITE_API_BASE_URL ?? "/api";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

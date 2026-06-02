@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: elearning-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elearning
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d elearning"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: elearning-auth
+    environment:
+      NODE_ENV: production
+      PORT: 8081
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/elearning?schema=auth
+      FRONTEND_ORIGIN: http://localhost
+      GATEWAY_ORIGIN: http://localhost:8080
+      CORS_ORIGINS: http://localhost,http://localhost:8080
+      JWT_SECRET: dev_secret_change_me
+      JWT_EXPIRES_IN: 15m
+      REFRESH_EXPIRES_DAYS: 7
+    command: ["sh", "-c", "until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done; npx prisma migrate deploy && npm start"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/readiness >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  course-catalog-service:
+    build:
+      context: ./services/course-catalog-service
+    container_name: elearning-catalog
+    environment:
+      NODE_ENV: production
+      PORT: 8082
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/elearning?schema=catalog
+      CORS_ORIGINS: http://localhost,http://localhost:8080
+      JWT_SECRET: dev_secret_change_me
+    command: ["sh", "-c", "until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done; npx prisma migrate deploy && npm start"]
+    restart: unless-stopped
+    ports:
+      - "8091:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/readiness >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: elearning-gateway
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      FRONTEND_ORIGIN: http://localhost
+      AUTH_SERVICE_URL: http://auth-service:8081
+      COURSE_SERVICE_URL: http://course-catalog-service:8082
+      JWT_SECRET: dev_secret_change_me
+    ports:
+      - "8090:8080"
+    restart: unless-stopped
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      course-catalog-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/readiness >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8090
+        VITE_CATALOG_URL: http://localhost:8091
+    container_name: elearning-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

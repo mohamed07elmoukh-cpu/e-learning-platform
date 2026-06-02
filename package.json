@@ -7,7 +7,13 @@
     "dev": "concurrently --names frontend,gateway,auth,catalog --prefix-colors magenta,cyan,yellow,green \"npm --prefix frontend run dev\" \"npm --prefix gateway run dev\" \"npm --prefix auth-service run dev\" \"npm --prefix services/course-catalog-service run dev\"",
     "dev:backend": "concurrently --names gateway,auth,catalog --prefix-colors cyan,yellow,green \"npm --prefix gateway run dev\" \"npm --prefix auth-service run dev\" \"npm --prefix services/course-catalog-service run dev\"",
     "dev:frontend": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build && npm --prefix gateway run build && npm --prefix auth-service run build && npm --prefix services/course-catalog-service run build"
+    "build": "npm --prefix frontend run build && npm --prefix gateway run build && npm --prefix auth-service run build && npm --prefix services/course-catalog-service run build",
+    "docker:build": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-images.ps1 build",
+    "docker:tag": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-images.ps1 tag",
+    "docker:push": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-images.ps1 push",
+    "docker:publish": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-images.ps1 publish",
+    "docker:up": "docker compose up --build --remove-orphans",
+    "docker:down": "docker compose down -v --remove-orphans"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

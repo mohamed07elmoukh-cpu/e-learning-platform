@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elearning-config
+data:
+  FRONTEND_ORIGIN: "http://localhost:30080"
+  GATEWAY_ORIGIN: "http://localhost:30090"
+  AUTH_SERVICE_URL: "http://auth-service:8081"
+  COURSE_SERVICE_URL: "http://course-catalog-service:8082"
+  AUTH_CORS_ORIGINS: "http://localhost:30080,http://localhost:30090"
+  CATALOG_CORS_ORIGINS: "http://localhost:30080,http://localhost:30090"
+  JWT_EXPIRES_IN: "15m"
+  REFRESH_EXPIRES_DAYS: "7"

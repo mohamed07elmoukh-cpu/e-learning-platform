@@ -19,7 +19,7 @@ const catalogBaseRaw =
   (import.meta as ImportMeta & {
     env?: { VITE_CATALOG_URL?: string; VITE_API_BASE_URL?: string };
   }).env?.VITE_CATALOG_URL ??
-  "http://localhost:8082";
+  "/catalog-api";
 
 const CATALOG_BASE = catalogBaseRaw.replace(/\/$/, "");
 
