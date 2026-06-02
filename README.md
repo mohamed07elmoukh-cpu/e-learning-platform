@@ -1,110 +1,74 @@
- E-Learning Platform
+# E-Learning Platform
 
-Plateforme e-learning basée sur une architecture **modulaire (frontend + microservices)**.
-
-
-
+Plateforme e-learning basee sur une architecture modulaire avec `frontend`, `gateway` et microservices.
 
 ---
 
-## ⚙️ Technologies
+## Technologies
 
-- **Frontend** : React, Vite, TypeScript
-- **Backend** : Node.js, Express
-- **Auth** : JWT + Refresh Token
-- **Database** : PostgreSQL (Prisma ORM)
-- **Architecture** : Microservices + API Gateway
-
----
-
-## 🚀 Fonctionnalités
-
-### 👤 Utilisateur
-- Inscription / Connexion
-- Refresh Token automatique
-- Accès Dashboard
-- Liste des cours
-- Détail des cours
-- Mise à jour profil
-
-### 🔐 Sécurité
-- JWT Access + Refresh Token
-- Middleware d’authentification
-- Routes protégées (Admin / Instructor / User)
-
-### 📚 Cours
-- Catalogue paginé
-- Détail des cours
-- Structure : Course → Module → Lesson
-
-### 🛠️ Admin
-- CRUD complet :
-  - Cours
-  - Modules
-  - Leçons
+- Frontend: React, Vite, TypeScript
+- Backend: Node.js, Express
+- Auth: JWT + Refresh Token
+- Database: PostgreSQL avec Prisma
+- Architecture: API Gateway + microservices
 
 ---
 
-## 🔁 Architecture des flux
+## Fonctionnalites
 
-- Le **Gateway** gère :
-  - CORS
-  - Rate limiting
-  - Vérification JWT
-  - Proxy vers les services
-
----
-
-## 🔑 Authentification
-
-- Login → retourne `accessToken` + `refreshToken`
-- Stockage côté frontend
-- Refresh automatique si 401
+- Inscription / connexion
+- Refresh token automatique
+- Dashboard et profil utilisateur
+- Catalogue de cours et details
+- Routes protegees par role
+- CRUD admin sur cours, modules et lecons
 
 ---
 
-## 📂 Points importants du code
+## Points importants
 
-- Routing : `frontend/src/App.tsx`
-- Auth Context : `frontend/src/auth/AuthContext.tsx`
-- API layer : `frontend/src/api/http.ts`
-- Gateway : `gateway/src/main.ts`
-- Auth logic : `auth-service/src/main.ts`
-- Prisma schema :
-  - auth → `auth-service/prisma/schema.prisma`
-  - courses → `services/course-catalog-service/prisma/schema.prisma`
+- Routing frontend: `frontend/src/App.tsx`
+- Auth context: `frontend/src/auth/AuthContext.tsx`
+- Couche API frontend: `frontend/src/api/http.ts`
+- Gateway: `gateway/src/main.ts`
+- Auth service: `auth-service/src/main.ts`
+- Course catalog service: `services/course-catalog-service/src/main.ts`
 
 ---
 
-## ⚠️ Limitations actuelles
+## Lancer le projet
 
-- Page Instructor (placeholder)
-- UI Home non finalisée
-- CourseDetails partiellement mockée
-
----
-
-## ▶️ Lancer le projet (exemple)
+Installation de toutes les dependances:
 
 ```bash
-# frontend
-cd frontend
-npm install
-npm run dev
+npm run setup
+```
 
-# gateway
-cd gateway
-npm install
-npm run dev
+Lancement de tout le projet avec une seule commande:
 
-# auth-service
-cd auth-service
-npm install
-npx prisma migrate dev
+```bash
 npm run dev
+```
 
-# course service
-cd services/course-catalog-service
-npm install
-npx prisma migrate dev
-npm run dev
+Commandes utiles:
+
+```bash
+# backend seulement
+npm run dev:backend
+
+# frontend seulement
+npm run dev:frontend
+
+# build de tous les projets
+npm run build
+```
+
+---
+
+## Notes
+
+- Le frontend demarre via Vite sur `http://localhost:5173`
+- Le gateway utilise `http://localhost:8080`
+- L'auth-service utilise `http://localhost:8081`
+- Le course-catalog-service utilise `http://localhost:8082`
+- Si Prisma n'est pas encore initialise, lance aussi les migrations dans les services concernes

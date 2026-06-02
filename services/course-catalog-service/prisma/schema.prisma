@@ -16,22 +16,33 @@ enum LessonType {
 }
 
 model Course {
-  id           String   @id @default(uuid())
-  title        String
-  description  String?
-  level        String?
-  thumbnailUrl String?
-  isPublished  Boolean  @default(false)
-  createdBy    String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  modules      Module[]
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  shortDescription String?
+  description      String?
+  level            String?
+  category         String   @default("Development")
+  estimatedHours   Int      @default(0)
+  thumbnailUrl     String?
+  tags             String[] @default([])
+  featured         Boolean  @default(false)
+  isPublished      Boolean  @default(false)
+  publishedAt      DateTime?
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  modules          Module[]
+
+  @@index([isPublished, featured, createdAt(sort: Desc)])
+  @@index([category, isPublished])
 }
 
 model Module {
   id          String   @id @default(uuid())
   courseId    String
   title       String
+  summary     String?
   orderIndex  Int
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -52,6 +63,7 @@ model Lesson {
   contentText String?
   durationMin Int?
   orderIndex  Int
+  isPreview   Boolean    @default(false)
   isPublished Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

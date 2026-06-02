@@ -2,19 +2,27 @@ import prisma from "../../db/prisma";
 
 type CourseInput = {
   title: string;
+  slug: string;
+  shortDescription?: string | null;
   description?: string | null;
   level?: string | null;
+  category?: string;
+  estimatedHours?: number;
   thumbnailUrl?: string | null;
+  tags?: string[];
+  featured?: boolean;
   createdBy: string;
 };
 
 type CourseUpdateInput = Partial<Omit<CourseInput, "createdBy">> & {
   isPublished?: boolean;
+  publishedAt?: Date | null;
 };
 
 type ModuleInput = {
   courseId: string;
   title: string;
+  summary?: string | null;
   orderIndex: number;
   isPublished?: boolean;
 };
@@ -29,6 +37,7 @@ type LessonInput = {
   contentText?: string | null;
   durationMin?: number | null;
   orderIndex: number;
+  isPreview?: boolean;
   isPublished?: boolean;
 };
 
@@ -68,11 +77,21 @@ export async function deleteLesson(lessonId: string) {
   return prisma.lesson.delete({ where: { id: lessonId } });
 }
 export async function setCoursePublished(courseId: string, isPublished: boolean) {
-  return prisma.course.update({ where: { id: courseId }, data: { isPublished } });
+  return prisma.course.update({
+    where: { id: courseId },
+    data: {
+      isPublished,
+      publishedAt: isPublished ? new Date() : null
+    }
+  });
 }
 
 export async function ensureCourseExists(courseId: string) {
   return prisma.course.findUnique({ where: { id: courseId } });
+}
+
+export async function findCourseBySlug(slug: string) {
+  return prisma.course.findUnique({ where: { slug } });
 }
 
 export async function ensureModuleExists(moduleId: string) {

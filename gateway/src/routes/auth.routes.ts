@@ -12,9 +12,13 @@ function sendProxy(res: Response, status: number, data: unknown) {
   return res.status(status).json(data);
 }
 
+function requestHeaders(requestId?: string) {
+  return requestId ? { "x-request-id": requestId } : undefined;
+}
+
 authRouter.post("/register", async (req, res) => {
   try {
-    const result = await authClient.register(req.body);
+    const result = await authClient.register(req.body, requestHeaders(req.requestId));
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(502).json({
@@ -26,7 +30,7 @@ authRouter.post("/register", async (req, res) => {
 
 authRouter.post("/login", async (req, res) => {
   try {
-    const result = await authClient.login(req.body);
+    const result = await authClient.login(req.body, requestHeaders(req.requestId));
     const payload = result.data as { refreshToken?: string } | null;
     if (payload?.refreshToken) {
       refreshTokens.add(payload.refreshToken);
@@ -47,7 +51,7 @@ authRouter.post("/refresh", async (req, res) => {
   }
 
   try {
-    const result = await authClient.refresh(req.body);
+    const result = await authClient.refresh(req.body, requestHeaders(req.requestId));
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     if (!refreshTokens.has(refreshToken)) {
@@ -66,7 +70,7 @@ authRouter.post("/logout", async (req, res) => {
     refreshTokens.delete(refreshToken);
   }
   try {
-    const result = await authClient.logout(req.body);
+    const result = await authClient.logout(req.body, requestHeaders(req.requestId));
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(200).json({
@@ -77,7 +81,7 @@ authRouter.post("/logout", async (req, res) => {
 
 authRouter.post("/forgot-password", async (req, res) => {
   try {
-    const result = await authClient.forgotPassword(req.body);
+    const result = await authClient.forgotPassword(req.body, requestHeaders(req.requestId));
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(502).json({
@@ -89,7 +93,7 @@ authRouter.post("/forgot-password", async (req, res) => {
 
 authRouter.post("/reset-password", async (req, res) => {
   try {
-    const result = await authClient.resetPassword(req.body);
+    const result = await authClient.resetPassword(req.body, requestHeaders(req.requestId));
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(502).json({
@@ -102,7 +106,10 @@ authRouter.post("/reset-password", async (req, res) => {
 authRouter.get("/me", authMiddleware(), async (req, res) => {
   try {
     const authHeader = req.headers.authorization ?? "";
-    const result = await authClient.me({ Authorization: authHeader });
+    const result = await authClient.me({
+      Authorization: authHeader,
+      ...(req.requestId ? { "x-request-id": req.requestId } : {})
+    });
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(502).json({
@@ -115,7 +122,10 @@ authRouter.get("/me", authMiddleware(), async (req, res) => {
 authRouter.put("/profile", authMiddleware(), async (req, res) => {
   try {
     const authHeader = req.headers.authorization ?? "";
-    const result = await authClient.updateProfile(req.body, { Authorization: authHeader });
+    const result = await authClient.updateProfile(req.body, {
+      Authorization: authHeader,
+      ...(req.requestId ? { "x-request-id": req.requestId } : {})
+    });
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     return res.status(502).json({

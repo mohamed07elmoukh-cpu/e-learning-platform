@@ -1,0 +1,15 @@
+{
+  "name": "elearning-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "setup": "npm install && npm install --prefix frontend && npm install --prefix gateway && npm install --prefix auth-service && npm install --prefix services/course-catalog-service",
+    "dev": "concurrently --names frontend,gateway,auth,catalog --prefix-colors magenta,cyan,yellow,green \"npm --prefix frontend run dev\" \"npm --prefix gateway run dev\" \"npm --prefix auth-service run dev\" \"npm --prefix services/course-catalog-service run dev\"",
+    "dev:backend": "concurrently --names gateway,auth,catalog --prefix-colors cyan,yellow,green \"npm --prefix gateway run dev\" \"npm --prefix auth-service run dev\" \"npm --prefix services/course-catalog-service run dev\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build && npm --prefix gateway run build && npm --prefix auth-service run build && npm --prefix services/course-catalog-service run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

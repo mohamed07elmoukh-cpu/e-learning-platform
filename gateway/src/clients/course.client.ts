@@ -44,9 +44,9 @@ async function fetchJson<T>(url: string, headers: Record<string, string>, timeou
 }
 
 export async function listCourses(headers: Record<string, string>) {
-  return fetchJson(`${env.COURSE_SERVICE_URL}/courses`, headers);
+  return fetchJson(`${env.COURSE_SERVICE_URL}/catalog/courses`, headers);
 }
 
 export async function getCourseById(id: string, headers: Record<string, string>) {
-  return fetchJson(`${env.COURSE_SERVICE_URL}/courses/${id}`, headers);
+  return fetchJson(`${env.COURSE_SERVICE_URL}/catalog/courses/${id}`, headers);
 }

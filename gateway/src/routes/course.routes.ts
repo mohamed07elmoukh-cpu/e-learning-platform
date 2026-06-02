@@ -18,7 +18,10 @@ function sendProxy(res: Response, status: number, data: unknown) {
 courseRouter.get("/", async (req, res) => {
   try {
     const authHeader = req.headers.authorization ?? "";
-    const result = await courseClient.listCourses({ Authorization: authHeader });
+    const result = await courseClient.listCourses({
+      Authorization: authHeader,
+      ...(req.requestId ? { "x-request-id": req.requestId } : {})
+    });
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     if ((error as courseClient.ServiceUnavailableError).code === "SERVICE_UNAVAILABLE") {
@@ -36,7 +39,10 @@ courseRouter.get("/", async (req, res) => {
 courseRouter.get("/:id", async (req, res) => {
   try {
     const authHeader = req.headers.authorization ?? "";
-    const result = await courseClient.getCourseById(req.params.id, { Authorization: authHeader });
+    const result = await courseClient.getCourseById(req.params.id, {
+      Authorization: authHeader,
+      ...(req.requestId ? { "x-request-id": req.requestId } : {})
+    });
     return sendProxy(res, result.status, result.data);
   } catch (error) {
     if ((error as courseClient.ServiceUnavailableError).code === "SERVICE_UNAVAILABLE") {
