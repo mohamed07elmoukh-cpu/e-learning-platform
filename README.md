@@ -161,6 +161,20 @@ kubectl get pods -n elearning
 kubectl get svc -n elearning
 ```
 
+Creer le secret Kubernetes avant le deploiement:
+
+```powershell
+kubectl create namespace elearning
+kubectl create secret generic elearning-secrets `
+  --from-literal=POSTGRES_USER=postgres `
+  --from-literal=POSTGRES_PASSWORD=ton_mot_de_passe `
+  --from-literal=POSTGRES_DB=elearning `
+  --from-literal=JWT_SECRET=ton_jwt_secret `
+  --from-literal=AUTH_DATABASE_URL="postgresql://postgres:ton_mot_de_passe@postgres:5432/elearning?schema=auth" `
+  --from-literal=CATALOG_DATABASE_URL="postgresql://postgres:ton_mot_de_passe@postgres:5432/elearning?schema=catalog" `
+  -n elearning
+```
+
 Suppression:
 
 ```bash
@@ -174,7 +188,7 @@ Services exposes:
 
 Points importants:
 
-- Le secret `k8s/secret.yaml` contient des valeurs de placeholder, change `POSTGRES_PASSWORD` et `JWT_SECRET` avant le deploiement.
+- Ne pousse pas `k8s/secret.yaml` avec de vraies valeurs. Le repo contient seulement `k8s/secret.example.yaml` comme modele.
 - Le frontend passe par Nginx et reverse proxy `/api` vers `gateway` et `/catalog-api` vers `course-catalog-service`, ce qui evite les URLs absolues dans Kubernetes.
 
 ---

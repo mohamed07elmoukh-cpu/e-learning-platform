@@ -4,7 +4,6 @@ namespace: elearning
 resources:
   - namespace.yaml
   - configmap.yaml
-  - secret.yaml
   - postgres.yaml
   - auth-service.yaml
   - course-catalog-service.yaml
